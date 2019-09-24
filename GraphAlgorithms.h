@@ -12,13 +12,6 @@ template<typename T, typename WeightType = int>
 class GraphAlgorithms
 {
 public:
-  static void firstUnvisitedNode(
-    Graph<T, WeightType>& graph,
-    typename Graph<T, WeightType>::Node* out)
-  {
-    graph.first_unvisited(out);
-  }
-
   static bool allNodesVisited(const Graph<T, WeightType>& graph)
   {
     bool ret = true;
@@ -30,28 +23,76 @@ public:
     return ret;
   }
 
-
-  static std::list<Graph<T, WeightType>> connectedComponents(
-    Graph<T, WeightType>& graph)
+  static void bfsTraversal(Graph<T, WeightType>& graph,
+    std::list<std::list<typename Graph<T, WeightType>::Node*>> &out,
+    typename Graph<T, WeightType>::Node *entry = nullptr)
   {
-    std::list<Graph<T, WeightType>> ret;
-    graph.reset();
+    std::queue<Graph<T, WeightType>::Node*> queue;
+    typename Graph<T, WeightType>::Node* first = nullptr;
+    if (entry == nullptr) {
+      graph.first_unvisited(first);
+    } else {
+      first = entry;
+    }
+    if (first != nullptr) {
+      queue.push(first);
+      out.push_back({});
 
-    while (allNodesVisited(graph)) {
-      typename Graph<T, WeightType>::Node* node = nullptr;
-      firstUnvisitedNode(graph, node);
-      if (node != nullptr) {
-        // TODO do dfs or bfs search.
+      while (!queue.empty() || !allNodesVisited(graph)) {
+
+        if (queue.empty() && !allNodesVisited(graph)) {
+          first = nullptr;
+          graph.first_unvisited(first);
+          queue.push(first);
+          out.push_back({});
+        }
+
+        typename Graph<T, WeightType>::Node* next = queue.front();
+        if (!next->visited()) {
+          out.back().push_back(next);
+        }
+        next->visited(true);
+        queue.pop();
+
+        for (typename Graph<T, WeightType>::Node* adj : next->adj()) {
+          if (!adj->visited()) {
+            queue.push(adj);
+          }
+        }
       }
     }
-
-    return ret;
   }
 
-  static std::list<typename Graph<T, WeightType>::Node> dfs_traversal(
-    const Graph<T, WeightType>& graph)
+  static void dfsTraversal(Graph<T, WeightType>& graph,
+    std::list<std::list<typename Graph<T, WeightType>::Node*>>& out,
+    typename Graph<T, WeightType>::Node *entry = nullptr)
   {
-    std::queue<Gaph<T, Weight>::Node*> queue;
+    std::function<void(typename Graph<T, WeightType>::Node*)> dfs =
+      [&](typename Graph<T, WeightType>::Node* node)
+    {
+      node->visited(true);
+      out.back().push_back(node);
+      for (typename Graph<T, WeightType>::Node* adj : node->adj()) {
+        if (!adj->visited()) {
+          dfs(adj);
+        }
+      }
+    };
+
+    graph.reset();
+    typename Graph<T, WeightType>::Node* first = nullptr;
+    if (entry == nullptr) {
+      graph.first_unvisited(first);
+    } else {
+      first = entry;
+    }
+    while (first != nullptr && !allNodesVisited(graph)) {
+      out.push_back({});
+      graph.first_unvisited(first);
+      dfs(first);
+      first = nullptr;
+      graph.first_unvisited(first);
+    }
   }
 };
 

@@ -53,6 +53,16 @@ public:
         });
     }
 
+    const std::list<Node*>& adj() const
+    {
+      return adj_;
+    }
+
+    std::list<Node*>& adj()
+    {
+      return adj_;
+    }
+
     bool visited() const
     {
       return visited_;
@@ -133,7 +143,7 @@ public:
       });
   }
 
-  bool first_unvisited(Node* node)
+  bool first_unvisited(Node*& node)
   {
     bool found = false;
     for (Node& next : nodes_) {

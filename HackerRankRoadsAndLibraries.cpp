@@ -31,8 +31,11 @@ long HackerRankRoadsAndLibraries::roadsAndLibraries(
   }
   graph.print();
 
-  std::list<Graph<int>> subgraphs =
-    GraphAlgorithms<int>::connectedComponents(graph);
+  std::list<std::list<Graph<int>::Node*>> bfsOut;
+  GraphAlgorithms<int>::bfsTraversal(graph, bfsOut);
+
+  std::list<std::list<Graph<int>::Node*>> dfsOut;
+  GraphAlgorithms<int>::dfsTraversal(graph, dfsOut);
 
   return ret;
 }
