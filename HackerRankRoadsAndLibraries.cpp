@@ -21,7 +21,7 @@ long HackerRankRoadsAndLibraries::roadsAndLibraries(
   const std::vector<std::vector<int>>& cities
 )
 {
-  long ret = 0;
+  std::size_t ret = 0;
 
   Graph<int> graph;
   for (const std::vector<int>& cityIds : cities) {
@@ -29,13 +29,22 @@ long HackerRankRoadsAndLibraries::roadsAndLibraries(
     int idB = cityIds[1];
     graph.connect(idA, idB, 1);
   }
-  graph.print();
-
-  std::list<std::list<Graph<int>::Node*>> bfsOut;
-  GraphAlgorithms<int>::bfsTraversal(graph, bfsOut);
 
   std::list<std::list<Graph<int>::Node*>> dfsOut;
   GraphAlgorithms<int>::dfsTraversal(graph, dfsOut);
+
+  graph.print();
+
+  ret = dfsOut.size() * c_lib;
+  std::size_t cost_for_just_libraries = 0;
+  for (const auto& subgraph : dfsOut) {
+    std::size_t cost_of_roads_for_subgraph = ((subgraph.size() - 1) * c_road); 
+    ret += cost_of_roads_for_subgraph;
+    std::size_t cost_of_library_for_subgraph = subgraph.size() * c_lib;
+    cost_for_just_libraries += cost_of_library_for_subgraph;
+  }
+
+  ret = std::min(ret, cost_for_just_libraries);
 
   return ret;
 }

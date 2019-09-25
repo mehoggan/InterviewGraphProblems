@@ -16,7 +16,7 @@ public:
   {
     bool ret = true;
     graph.iterate_nodes(
-      [&](typename const Graph<T, WeightType>::Node& node)
+      [&](const typename Graph<T, WeightType>::Node& node)
       {
         ret &= node.visited();
       });
@@ -27,7 +27,7 @@ public:
     std::list<std::list<typename Graph<T, WeightType>::Node*>> &out,
     typename Graph<T, WeightType>::Node *entry = nullptr)
   {
-    std::queue<Graph<T, WeightType>::Node*> queue;
+    typename std::queue<Graph<T, WeightType>::Node*> queue;
     typename Graph<T, WeightType>::Node* first = nullptr;
     if (entry == nullptr) {
       graph.first_unvisited(first);
