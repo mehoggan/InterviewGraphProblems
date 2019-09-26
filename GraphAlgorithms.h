@@ -5,6 +5,7 @@
 
 #include <list>
 #include <queue>
+#include <unordered_map>
 
 #include "BasicGraph.h"
 
@@ -72,9 +73,9 @@ public:
     {
       node->visited(true);
       out.back().push_back(node);
-      for (typename Graph<T, WeightType>::Node* adj : node->adj()) {
-        if (!adj->visited()) {
-          dfs(adj);
+      for (const auto& adj : node->adj()) {
+        if (!adj.first->visited()) {
+          dfs(adj.first);
         }
       }
     };
@@ -92,6 +93,53 @@ public:
       dfs(first);
       first = nullptr;
       graph.first_unvisited(first);
+    }
+  }
+
+  static void minDistanceBasedBfs(
+    Graph<T, WeightType>& graph,
+    const T &start,
+    const T &end,
+    std::size_t& minDistance)
+  {
+    graph.reset();
+
+    std::unordered_map<T, WeightType> minDistanceTable;
+    minDistanceTable[start] = 0;
+
+    std::list<Graph<int, int>::Node>::iterator it = graph.find(start);
+    std::queue<Graph<int, int>::Node*> queue;
+    queue.push(&(*it));
+    while (!queue.empty()) {
+      Graph<int, int>::Node* next = queue.front();
+      next->visited(true);
+      queue.pop();
+
+      WeightType distanceTo = minDistanceTable[next->data()];
+
+      for (const auto& adj : next->adj()) {
+        WeightType distanceToAdj = distanceTo + adj.second;
+        auto innerIt = minDistanceTable.find(adj.first->data());
+        if (innerIt == minDistanceTable.end()) {
+          minDistanceTable[adj.first->data()] = distanceToAdj;
+        } else {
+          if (distanceToAdj < minDistanceTable[adj.first->data()]) {
+            minDistanceTable[adj.first->data()] = distanceToAdj;
+          }
+        }
+
+        if (!adj.first->visited()) {
+          queue.push(adj.first);
+        }
+      }
+    }
+
+    typename std::unordered_map<T, WeightType>::iterator finalIt =
+      minDistanceTable.find(end);
+    if (finalIt == minDistanceTable.end()) {
+      minDistance = -1;
+    } else {
+      minDistance = finalIt->second;
     }
   }
 };

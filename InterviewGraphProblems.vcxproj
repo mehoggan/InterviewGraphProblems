@@ -100,9 +100,11 @@
   <ItemGroup>
     <ClInclude Include="BasicGraph.h" />
     <ClInclude Include="GraphAlgorithms.h" />
+    <ClInclude Include="HackerRankBreadthFirstSearchShortestReach.h" />
     <ClInclude Include="HackerRankRoadsAndLibraries.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="HackerRankBreadthFirstSearchShortestReach.cpp" />
     <ClCompile Include="HackerRankRoadsAndLibraries.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

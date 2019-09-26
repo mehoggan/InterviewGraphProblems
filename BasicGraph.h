@@ -7,6 +7,7 @@
 #include <functional>
 #include <iostream>
 #include <list>
+#include <utility>
 
 template <typename T, typename WeightType = int>
 class Graph
@@ -23,39 +24,51 @@ public:
       visited_(false)
     {}
 
+    const T& data() const
+    {
+      return data_;
+    }
+
+    T& data()
+    {
+      return data_;
+    }
+
     bool connected_to(const T& data)
     {
       return (std::find_if(adj_.begin(), adj_.end(),
-        [&](Node* a)
+        [&](std::pair<Node*, WeightType> &a)
         {
-          return a->data_ == data;
+          return a.first->data_ == data;
         }) != adj_.end());
     }
 
-    void iterate_edges(std::function<void(const Node& node)> func) const
+    void iterate_edges(std::function<void(
+      const std::pair<Node*, WeightType>& node)> func) const
     {
-      std::for_each(adj_.begin(), adj_.end(),
-        [&](const Node * const edge)
+      std::for_each(adj_.cbegin(), adj_.cend(),
+        [&](const std::pair<Node *, WeightType>& edge)
         {
-          func(*edge);
+          func(edge);
         });
     }
 
-    void iterate_edges(std::function<void(Node& node)> func)
+    void iterate_edges(std::function<void(
+      const std::pair<Node*, WeightType>& node)> func)
     {
       std::for_each(adj_.begin(), adj_.end(),
-        [&](Node *edge)
+        [&](std::pair<Node *, WeightType>& edge)
         {
-          func(*edge);
+          func(edge);
         });
     }
 
-    const std::list<Node*>& adj() const
+    const std::list<std::pair<Node*, WeightType>>& adj() const
     {
       return adj_;
     }
 
-    std::list<Node*>& adj()
+    std::list<std::pair<Node*, WeightType>>& adj()
     {
       return adj_;
     }
@@ -72,13 +85,21 @@ public:
 
   private:
     T data_;
-    std::list<Node*> adj_;
+    std::list<std::pair<Node*, WeightType>> adj_;
     bool visited_;
   };
 
 public:
   Graph()
   {}
+
+  void add(const T& data)
+  {
+    auto it = find(data);
+    if (it == nodes_.end()) {
+      nodes_.push_back(Node(data));
+    }
+  }
 
   void connect(const T& dataA, const T& dataB, const WeightType& weight)
   {
@@ -100,7 +121,7 @@ public:
     itA = find(dataA);
     itB = find(dataB);
     if (!itA->connected_to(itB->data_)) {
-      itA->adj_.push_back(&(*itB));
+      itA->adj_.push_back(std::make_pair(&(*itB), weight));
     }
   }
 
@@ -153,24 +174,22 @@ public:
 
   void print() const
   {
-    std::for_each(nodes_.begin(), nodes_.end(),
+    std::function<void(const std::pair<Node*, WeightType>&)> itAdjFunc =
+      [&](const std::pair<Node*, WeightType>& a)
+      {
+        std::cout << a.first->data_;
+        std::cout << " --> ";
+      };
+
+    std::function<void(const Node&)> itNodeFunc =
       [&](const Node& node)
       {
         std::cout << "(" << node.data_ << "): ";
-
-        typename std::list<Node*>::const_iterator it = node.adj_.begin();
-
-        std::for_each(node.adj_.begin(), node.adj_.end(),
-          [&](const Node* const a)
-          {
-            std::cout << a->data_;
-            ++it;
-            if (it != node.adj_.end()) {
-              std::cout << " --> ";
-            }
-          });
+        node.iterate_edges(itAdjFunc);
         std::cout << std::endl;
-      });
+      };
+
+    iterate_nodes(itNodeFunc);
   }
 
 private:

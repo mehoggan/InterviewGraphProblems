@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+
 # Visual Studio BS #
 .vs/
 **/x64/
@@ -38,4 +39,5 @@
 *.idb
 *.pdb
 **/Debug/
+*.filters
 
