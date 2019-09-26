@@ -18,9 +18,6 @@ public:
     friend class Graph<T, WeightType>;
 
   public:
-    typedef typename Graph<T, WeightType> Graph_t;
-
-  public:
     Node(const T& data) :
       data_(data),
       visited_(false)
